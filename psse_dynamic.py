@@ -34,10 +34,10 @@ redirect.psse2py()
 
 def generate_ambient_signals(amplitude, frequency_sampling, length, size):
     while True:
-        y=np.random.uniform(-amplitude,amplitude,[length*100,size])  # 随机生成一个发电机的扰动
+        y=np.random.uniform(-amplitude,amplitude,[length*500,size])  # 随机生成一个发电机的扰动
         y_final = np.zeros((length, size))  # 初始化最终结果数组
         nyq=frequency_sampling/2#奈奎斯特频率
-        normal_cutoff=2/nyq#归一化截止频率
+        normal_cutoff=1/nyq#归一化截止频率,1Hz
         b, a = butter(5, normal_cutoff, btype='low', analog=False)  # 5阶低通滤波器
         y_filt = filtfilt(b, a, y, axis=0)  # 对每一列进行滤波
         for i in range(size):
@@ -73,7 +73,7 @@ def run_psse_simulation(simulation_type, study, type_option=4, case_path='./Case
     # -------------------------------------------------------------------------
     #** convert loads and create converted case
     psspy.conl(_i,_i,1,[0,_i],[_f,_f,_f,_f])
-    psspy.bsys(sid=1,numbus=len(busid),buses=busid)
+    psspy.bsys(sid=1,numbus=len(busid)+1,buses=busid+[39])#39节点是平衡节点
     psspy.conl(1,0,2,[_i,_i],[ 50.0, 50.0,0.0, 50.0])
     psspy.conl(1,1,2,[_i,_i],[ 50.0, 50.0,0.0, 50.0])
     psspy.conl(_i,_i,3,[_i,_i],[_f,_f,_f,_f])   

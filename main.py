@@ -34,7 +34,7 @@ def plot_figures(df,k,title='Dynamic Simulation Results', xlabel='Time (s)'):
 if __name__ == '__main__':
 
     study='IEEE39_RE'
-    df=ps_d.run_psse_simulation(simulation_type='ambient', type_option=500,study=study,total_time=100)  # 运行 PSSE 动态仿真
+    df=ps_d.run_psse_simulation(simulation_type='ambient', type_option=500,study=study,total_time=50)  # 运行 PSSE 动态仿真
     df.to_pickle('data_ma.pkl')
 
     #df=pd.read_pickle('data.pkl')  # 从文件中读取数据
