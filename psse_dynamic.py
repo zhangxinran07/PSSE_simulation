@@ -34,11 +34,11 @@ redirect.psse2py()
 
 def generate_ambient_signals(amplitude, frequency_sampling, length, size):
     while True:
-        y=np.random.uniform(-amplitude,amplitude,[length*500,size])  # 随机生成一个发电机的扰动
+        y=np.random.uniform(-amplitude,amplitude,[length*10,size])  # 随机生成一个发电机的扰动
         y_final = np.zeros((length, size))  # 初始化最终结果数组
         nyq=frequency_sampling/2#奈奎斯特频率
-        normal_cutoff=1/nyq#归一化截止频率,1Hz
-        b, a = butter(5, normal_cutoff, btype='low', analog=False)  # 5阶低通滤波器
+        normal_cutoff=0.5/nyq#归一化截止频率,1Hz
+        b, a = butter(3, normal_cutoff, btype='low', analog=False)  # 5阶低通滤波器
         y_filt = filtfilt(b, a, y, axis=0)  # 对每一列进行滤波
         for i in range(size):
             flag=0
@@ -149,8 +149,8 @@ def run_psse_simulation(simulation_type, study, type_option=4, case_path='./Case
 
     elif simulation_type=='load_change':
         total_time = 10  # 总仿真时间 (秒)
-        ierr = psspy.run(0, 1, 0, 0, 0)    
-        ierr = psspy.load_chng_6(type_option, '1 ', [], [100, _f, _f, _f, _f, _f, _f, _f])   
+        ierr = psspy.run(0, 0.1, 0, 0, 0)    
+        ierr = psspy.load_chng_6(type_option[0], '1 ', [], [type_option[1], _f, _f, _f, _f, _f, _f, _f])   
         ierr = psspy.run(0, total_time, 0, 0, 0)    
 
     sys.stdout.close()                # ordinary file object

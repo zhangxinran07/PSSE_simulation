@@ -1,0 +1,32 @@
+UEXC tutorial
+All scripts and data are compatible with PSSe v.34.  Wiht minimum changes, it can work in v.33 or v.35
+
+Step 1: Create a dll for the User defined model (UDM) code
+source code: uexc.flx
+The UDM code can be prepared in flecs code (*.flx) or directly in fortran (*.for)
+Use the script 'cand.py' to create a dll file,
+Open a CMDline window (a Dos window) and just enter:
+	C:>python cand.py uexc<enter>
+The created dll file is named 'uexc_34.dll'. If there is an error, the code might need to be corrected.
+
+Step 2: Dyr file preparation
+The UDM is prepared as a dyr file ('uexc.dyr'), appended to the top of the main dyr file ('savnw.dyr') and saved as 'savnw_uexc.dyr'
+[PSSe keeps the first model read for a machine -uexc exciter model for machine 101- ignoring 
+following model entries of the same model type for the same machine -ieeet1 exciter model-]
+
+Step 3: Execute a dynamic run
+Run the python script in the Dos window as,
+	C:>python rundyn.py<enter>
+The script will convert the case (converts loads using "conl.idv") and read the "savnw_uexc.dyr".
+It also loads the DLL for the UDM and reads channels defined in "channels.idv"
+A dynamic run will simulate network dynamics under fault for 5 seconds.
+
+Step 4: Plot Channels
+WARNING: qplot cannot run within the PSSe GUI! 
+A simple plot script ('qplot.py') based on dyntools is called after the end of the simulation is reached, 
+to print same channels.  If an empty channels list is pass to qplot, 
+the list of all channels will be printed.
+Run the qplot script in the Dos window as,
+	C:>python qplot.py<enter>
+
+Edit all files to fit your case!.

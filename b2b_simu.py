@@ -11,55 +11,59 @@ def deri_cal(df):
     index=[18,19,2,27,28,22,23,30,33,32,26]#Bus3 UD,UQ,angle,ID,IQ,MA P,MA Q,MA MVA,ED1,EQ1,init load torque
     mva_amp=df.values[0,30]/100#容量基值放大倍数
     r,x1,x0,t0,H2=0.02/mva_amp,0.12/mva_amp,1.8/mva_amp,0.08,0.1
+    ang=(df.values[0,2]-df.values[:,2])/180*math.pi
+
     #u=(df.values[:,18]+1j*df.values[:,19])*np.exp(1j*((df.values[0,2]-df.values[:,2])/180*math.pi))
-    u=(df.values[:,18]+1j*df.values[:,19])*np.exp(1j*((df.values[0,2]-df.values[:,2])/180*math.pi))
+    u=(df.values[:,18]+1j*df.values[:,19])*np.exp(1j*ang)
     e=df.values[:,33]+1j*df.values[:,32]
-    i=(df.values[:,27]+1j*df.values[:,28])*np.exp(1j*((df.values[0,2]-df.values[:,2])/180*math.pi))
+    i=(df.values[:,27]+1j*df.values[:,28])*np.exp(1j*ang)
     s=-df.values[:,36]
     tm=df.values[0,26]
     P=df.values[:,22]
     Q=df.values[:,23]
     uei_diff=(u-e)+i*(r+1j*x1)
-    de_diff=(-1-1j*120*math.pi*s*t0)*e-1j*(x0-x1)*i
+    de_diff=((-1-1j*120*math.pi*s*t0)*e-1j*(x0-x1)*i)/t0
+    de=np.zeros(len(e)-1,dtype=complex)
     #tele=-(e.real*i.real+e.imag*i.imag)/mva_amp
     tele=df.values[:,24]
     P_p=-(u.real*i.real+u.imag*i.imag)
     Q_p=-(u.imag*i.real-u.real*i.imag)
     return u,e,tm,s,P,Q,mva_amp,i
 
-def b2b_cal(u,e,tm,s,P,Q,mva_amp,i,dt=0.002):
-    r,x1,x0,t0,H2=0.02/mva_amp,0.12/mva_amp,1.8/mva_amp,0.08,0.1
+def b2b_cal(u,P,Q,mva_amp,para,dt=0.002):
+    r,x1,x0,t0,H2=para[0]/mva_amp,para[1]/mva_amp,para[2]/mva_amp,para[3],para[4]
     n=len(u)
     de_p=np.zeros(n,dtype=complex)
-    de=np.zeros(n,dtype=complex)
     ds=np.zeros(n)
     tele=np.zeros(n)
     i_p=np.zeros(n,dtype=complex)
     e_p=np.zeros(n,dtype=complex)
-    e_p[0]=e[0]
+    e_p[0]=u[0]+i[0]*(r+1j*x1)
     s_p=np.zeros(n)
-    s_p[0]=s[0]
+    s_p[0]=abs(((x1-x0)*i[0]+1j*e[0])/120/math.pi/t0/e_p[0])
     P_p=np.zeros(n)
     Q_p=np.zeros(n)
     P_p[0]=P[0]
     Q_p[0]=Q[0]
+    i_p[0]=(e_p[0]-u[0])/(r+1j*x1)
+    tm=-(e_p[0].real*i_p[0].real+e_p[0].imag*i_p[0].imag)/mva_amp
+    #tm=P[0]/mva_amp
     for k in range(n-1):
         i_p[k]=(e_p[k]-u[k])/(r+1j*x1)
-        #i_p[k]=i[k]
         de_p[k]=((-1-1j*120*math.pi*s_p[k]*t0)*e_p[k]-1j*(x0-x1)*i_p[k])/t0
-        de[k]=(e[k+1]-e[k])/dt
         tele[k]=-(e_p[k].real*i_p[k].real+e_p[k].imag*i_p[k].imag)/mva_amp
         ds[k]=1/H2/2*(tm-tele[k])
         e_p[k+1]=e_p[k]+de_p[k]*dt
         s_p[k+1]=s_p[k]+ds[k]*dt
         P_p[k+1]=-(u[k].real*i_p[k].real+u[k].imag*i_p[k].imag)
         Q_p[k+1]=-(u[k].imag*i_p[k].real-u[k].real*i_p[k].imag)
-    a=1
+    return sum((P_p-P)**2)+sum((Q_p-Q)**2)
 
 
 
 if __name__ == '__main__':
     df=pd.read_pickle('data_ma.pkl')  # 从文件中读取数据
     u,e,tm,s,P,Q,mva_amp,i=deri_cal(df)
-    b2b_cal(u,e,tm,s,P,Q,mva_amp,i)
+    para=[0.02,0.22,2.8,0.08,0.1]
+    a=b2b_cal(u,P,Q,mva_amp,para)
     a=1

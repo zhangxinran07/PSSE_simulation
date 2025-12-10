@@ -1,0 +1,29 @@
+@! Channels.idv
+MENU,OFF      /* FORCE MENU TO CORRECT STATUS
+@! ANGLe channels
+BAT_CHSB, 0, 1, -1, -1, -1, 1, 1, 0 ;
+@! POWR channels = Pelec of machines
+BAT_CHSB, 0, 1, -1, -1, -1, 1, 2, 0 ;
+@! VARS channels = Qelec of machines
+BAT_CHSB, 0, 1, -1, -1, -1, 1, 3, 0 ;
+@! ETERM channels
+BAT_CHSB, 0, 1, -1, -1, -1, 1, 4, 0 ;
+@! SPEED channels
+BAT_CHSB, 0, 1, -1, -1, -1, 1, 7, 0 ;
+@! 230 kV Subsystem
+BAT_BSYS 0 1 230.000 230.000
+0
+0
+0
+0
+BAT_BSYS 0 1 230.000 230.000
+0
+0
+0
+0
+@! FREQ channels for 230 kV buses
+BAT_CHSB, 0, 0, -1, -1, -1, 1, 12, 0 ;
+@! VOLT channels for 230 kV buses
+BAT_CHSB, 0, 0, -1, -1, -1, 1, 13, 0 ;
+ECHO
+@END

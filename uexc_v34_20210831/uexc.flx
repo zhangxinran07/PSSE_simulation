@@ -1,0 +1,334 @@
+C
+C[UEXC]         05/23/02      EXAMPLE USER EXCITATION SYSTEM MODEL
+C
+C  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+C  *                                                                         *
+C  *  THIS PROGRAM AND ITS DOCUMENTATION ARE TRADE SECRETS OF POWER TECHNO-  *
+C  *  LOGIES, A DIVISION OF S&W CONSULTANTS, INC.  THEY HAVE BEEN LEASED TO  *
+C  *                   YOU, OUR CLIENT,                                      *
+C  *  SUBJECT TO TERMS WHICH PROHIBIT YOU FROM DISCLOSING OR TRANSFERRING    *
+C  *  THE PROGRAM OR ITS DOCUMENTATION, WHETHER IN ITS ORIGINAL OR MODIFIED  *
+C  *  FORM, TO A THIRD PARTY, OR FROM USING THE PROGRAM FOR ANY PURPOSE      *
+C  *  OTHER THAN COMPUTATION  RELATING TO YOUR OWN SYSTEM.  ANY SUCH         *
+C  *  TRANSFER OR USE BY YOU OR YOUR EMPLOYEES WILL CONSTITUTE A BREACH OF   *
+C  *  CONFIDENCE AND OF THE CONTRACT UNDER WHICH RIGHTS OF USE HAVE BEEN     *
+C  *  GRANTED.                                                               *
+C  *                                                                         *
+C  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *
+C
+      SUBROUTINE UEXC(IARG,ISLOT)
+C
+C     THIS IS A SIMPLIFIED EXAMPLE EXCITATION SYSTEM MODEL
+C
+C                        SUBROUTINE UEXC
+C    IARG   = MACHINE ARRAY INDEX
+C    ISLOT  = ARRAY ALLOCATION TABLE INDEX
+C             J = STRTIN(1,ISLOT) [ USES CON(J) THROUGH CON(J+8) ]
+C             K = STRTIN(2,ISLOT) [ USES STATE(K) AND STATE(K+3) ]
+C
+C      USE DYNAMICS, ONLY:  NUMTRM,  STRTIN,
+C     *                     EFD,
+C     *                     ECOMP,   VOTHSG,  VREF,
+C     *                     VUEL,    VOEL,
+C     *                     CON,     VAR,
+C     *                     STORMT,  STATE,   DSTATE,  STORE
+C      USE PSSCM4,   ONLY:  NUMBUS,  BASVLT,
+C     *                     BUSNAM,
+C     *                     MACHID
+C
+C$INCLUDE PERM4.INS
+C$INCLUDE DSCOM4.INS
+$INSERT COMON4.INS
+C
+      INTEGER   IARG,   ISLOT
+C
+      INTRINSIC MAX
+      EXTERNAL  BADMID
+C
+      INTEGER   I,      J,      K,      JJ,     KK,
+     *          IB,     IBUS,   IBPTR
+      REAL      VERROR, VR,     DEL2,   FDBK,   SS,    R_TF_KF
+      LOGICAL   HIGH,   LOW,    NEW
+      CHARACTER CB1*6,  CB2*6
+      CHARACTER IM*2,   VLTI*4
+C
+      IF (MODE.EQ.8) GO TO 1500                   ! GET DATA DESCRIPTIONS
+      I=IARG                                      ! MACHINE ARRAY INDEX
+      J=STRTIN(1,ISLOT)                           ! STARTING 'CON'
+      K=STRTIN(2,ISLOT)                           ! STARTING 'STATE'
+C
+      IF (MODE.GT.4) GO TO 1000
+C
+      IB=NUMTRM(I)                               ! RETURN IF OFF-LINE
+      IF (IB.LE.0) RETURN                        ! OR SVS OR INDUCTION MACHINE
+$1
+C
+C MODEL NOT IMPLEMENTED FOR MSTR/MRUN
+C
+      IF (MIDTRM)
+      .   CALL BADMID(I,IB,'UEXC')
+      .   RETURN
+      ...FIN
+C
+C     MODE 2 - CALCULATE DERIVATIVES
+      IF (MODE.EQ.2)                             ! CALCULATE DERIVATIVES
+C     .
+      .  WHEN (MIDTRM)                           ! MODE 2 Z-FORM
+C     .  the midterm simulation mode is not implemented 
+C     .  .
+C     .  .
+      .  ...FIN
+$1
+      .  ELSE                                    ! STATE SPACE
+C     .  MODE 2 code portion is inserted here
+C     .
+      .  .  HIGH=STATE(K+1).GE.CON(J+3)
+C     .
+      .  .  WHEN (HIGH)
+      .  .  .  STATE(K+1)=CON(J+3)
+      .  .  .  STORE(K+1)=CON(J+3)
+      .  .  ...FIN
+      .  .  ELSE
+      .  .  .  LOW=STATE(K+1).LE.CON(J+4)
+C     .  .  .
+      .  .  .  IF (LOW)
+      .  .  .  .  STATE(K+1)=CON(J+4)
+      .  .  .  .  STORE(K+1)=CON(J+4)
+      .  .  .  ...FIN
+C     .  .  .
+      .  .  ...FIN
+C     .  .     
+C     .  .  HANDLING SMALL TIME CONSTANTS
+      .  .  DEL2=2.*DELT
+C     .  .
+      .  .  WHEN (CON(J).LE.DEL2)
+      .  .  .  STORE(K)=ECOMP(I)
+      .  .  .  STATE(K)=ECOMP(I)
+      .  .  ...FIN
+      .  .  ELSE DSTATE(K)=(ECOMP(I)-STATE(K))/CON(J)
+C     .  .
+      .  .  DSTATE(K+2)=(STATE(K+1)/CON(J+5)-STATE(K+2))*CON(J+5)/CON(J+6)
+C     .  .
+      .  .  FDBK=STATE(K+2)*CON(J+7)/CON(J+8)-STATE(K+3)   ! FEEDBACK BLOCK OUTPUT
+      .  .  DSTATE(K+3)=FDBK/CON(J+8)
+C     .  .
+C     .  .  TEMPORARY VARIABLE SS
+      .  .  SS=(VREF(I)+VOTHSG(I)-STATE(K)-FDBK)*CON(J+1)
+C     .  .
+      .  .  WHEN (CON(J+2).LE.DEL2)
+      .  .  .  STORE(K+1)=SS
+      .  .  .  STATE(K+1)=SS
+      .  .  ...FIN
+      .  .  ELSE
+      .  .  .  DSTATE(K+1)=(SS-STATE(K+1))/CON(J+2)
+C     .  .  .
+      .  .  .  CONDITIONAL
+      .  .  .  .  (HIGH) IF (DSTATE(K+1).GT.0.) DSTATE(K+1)=0.
+      .  .  .  .  (LOW)  IF (DSTATE(K+1).LT.0.) DSTATE(K+1)=0.
+      .  .  .  ...FIN
+C     .  .  .
+      .  .  ...FIN
+C     .  .
+      .  ...FIN
+C     .
+      .  RETURN
+      ...FIN
+$1
+C     MODE 3 - SET EFD
+      IF (MODE.EQ.3)
+C     .
+      .  WHEN (MIDTRM)                           ! RESET STORES FOR CHANGE
+C     .  the midterm simulation mode is not implemented
+C     .  .                                       ! IN DELT (MIDTERM)
+C     .  .
+      .  ...FIN
+      .  ELSE EFD(I)=STATE(K+2)                  ! STATE SPACE
+C     .  MODE 3 code portion is inserted here
+C     .
+      .  RETURN
+      ...FIN
+$1
+C     MODE 1 - INITIALIZATION
+      IF (MODE.EQ.1)                             ! INITIALIZE
+      .  WHEN (MIDTRM)
+C     .  the midterm simulation mode is not implemented
+C     .  .
+C     .  .
+      .  ...FIN
+      .  ELSE
+C     .  MODE 1 code portion is inserted here
+C     .  .  TEMPORARY VARIABLE SS
+      .  .  SS=CON(J+5)*EFD(I)
+      .  .  VREF(I)=ECOMP(I)+SS/CON(J+1)
+C     .  .
+      .  .  IF (SS.GE.CON(J+3) .OR. SS.LE.CON(J+4))
+      .  .  .  WRITE(LPDEV,307) NUMBUS(IB),MACHID(I)
+      .  .  ...FIN
+C     .  .
+      .  .  STATE(K)=ECOMP(I)
+      .  .  STATE(K+1)=SS
+      .  .  STATE(K+2)=EFD(I)
+      .  .  STATE(K+3)=EFD(I)*CON(J+7)/CON(J+8)
+      .  ...FIN
+C     .
+      .  RETURN
+      ...FIN
+C
+C     MODE 4 -SET NINTEG
+C     MODE 4 code portion is inserted here
+      IF (K+3.GT.NINTEG) NINTEG=K+3
+      RETURN
+$1
+C     MODE > 4
+C
+ 1000 IM=MACHID(I)
+      IB=ABS(NUMTRM(I))
+      IBUS=NUMBUS(IB)
+C
+      IF (MODE.EQ.6) GO TO 2000
+C
+C     MODE 5 OR 7 - ACTIVITY DOCU
+C
+      IF (MODE.EQ.5)
+      .  CALL DOCUHD(*1900)
+      .  GO TO 1100
+      ...FIN
+C
+$1
+C     DATA CHECKING CODE
+C
+C     code portion # 1 for DOCU checking mode is inserted here
+      NEW=.FALSE.
+      DEL2=2.*DELT
+C
+      UNLESS (CON(J).GT.0. .AND. CON(J).LE.5.0)           ! TR
+      .  PRINT-HEADING
+      .  WRITE(IPRT,107) CON(J)
+      ...FIN
+C
+      UNLESS (CON(J+1).GE.10. .AND. CON(J+1).LE.500.0)    ! KA
+      .  PRINT-HEADING
+      .  WRITE(IPRT,108) CON(J+1)
+      ...FIN
+C
+      UNLESS (CON(J+2).GT.0. .AND. CON(J+2).LE.1.0)       ! TA
+      .  PRINT-HEADING
+      .  WRITE(IPRT,109) CON(J+2)
+      ...FIN
+C
+      UNLESS (CON(J+3).GE.0.5 .AND. CON(J+3).LE.10.0)     ! VRMAX
+      .  PRINT-HEADING
+      .  WRITE(IPRT,110) CON(J+3)
+      ...FIN
+C
+      UNLESS (CON(J+4).GE.-10.0 .AND. CON(J+4).LE.0.)     ! VRMIN
+      .  PRINT-HEADING
+      .  WRITE(IPRT,111) CON(J+4)
+      ...FIN
+C
+      UNLESS (CON(J+5).GE.-1.0 .AND. CON(J+5).LE.1.0)     ! KE
+      .  PRINT-HEADING
+      .  WRITE(IPRT,112) CON(J+5)
+      ...FIN
+C
+      UNLESS (CON(J+6).GT.DEL2 .AND. CON(J+6).LE.1.0)     ! TE
+      .  PRINT-HEADING
+      .  WRITE(IPRT,113) CON(J+6)
+      ...FIN
+C      
+      UNLESS (CON(J+7).GE.0. .AND. CON(J+7).LE.0.3)       ! KF
+      .  PRINT-HEADING
+      .  WRITE(IPRT,114) CON(J+7)
+      ...FIN
+C
+      UNLESS (CON(J+8).GT.DEL2 .AND. CON(J+8).LE.1.5)     ! TF
+      .  PRINT-HEADING
+      .  WRITE(IPRT,115) CON(J+8)
+      ...FIN
+C
+      R_TF_KF=CON(J+8)/CON(J+7)
+      UNLESS (R_TF_KF.GE.5.0 .AND. R_TF_KF.LE.15.0)       ! RATIO TF/KF
+      .  PRINT-HEADING
+      .  WRITE(IPRT,116) R_TF_KF
+      ...FIN
+C
+C     (DATA CHECKING PERFORMED FOR ALL CONS)
+C
+      UNLESS (NEW) RETURN
+C
+C     DATA TABULATION CODE
+C
+ 1100 JJ=J+8
+      KK=K+3
+C
+      CALL VLTFOR(VLTI,BASVLT(IB))
+      IBPTR = 0
+      CALL ADINTN (JJ,CB1,IBPTR)
+      IBPTR = 0
+      CALL ADINTN (KK,CB2,IBPTR)
+      WRITE(IPRT,17) IBUS,BUSNAM(IB),VLTI,IM,J,CB1,K,CB2
+      WRITE(IPRT,27) (CON(K),K=J,JJ)
+C
+ 1900 RETURN
+C
+C  MODE 6 - ACTIVITY DYDA
+C
+ 2000 WRITE(IPRT,507) IBUS,IM,(CON(K),K=J,J+8)
+      RETURN
+$1
+C     MODE 8 - ASSIGN DESCRIPTIONS FOR DATA EDITOR
+C
+C     MODE 8 code portion is inserted here
+ 1500 CON_DSCRPT(1) ='TR'
+      CON_DSCRPT(2) ='KA'
+      CON_DSCRPT(3) ='TA'
+      CON_DSCRPT(4) ='VRMAX'
+      CON_DSCRPT(5) ='VRMIN'
+      CON_DSCRPT(6) ='KE'
+      CON_DSCRPT(7) ='TE'
+      CON_DSCRPT(8) ='KF'
+      CON_DSCRPT(9) ='TF'
+      RETURN
+$1
+C
+C     a code portion for DOCU report is inserted here
+ 17   FORMAT(//6X,'** UEXC',' **  BUS   NAME   BSKV MACH',
+     *       '    C O N S     S T A T E S'/,
+     *       I23,1X,A8,1X,A4,2X,A2,1X,2(I7,'-',A6))
+ 27   FORMAT(/5X,'TR      KA     TA   VRMAX   VRMIN     KE     TE',
+     *       '     KF     TF'/
+     *       3X,F5.3,F8.2,2F7.3,2F8.3,3F7.3)
+ 97   FORMAT(//' BUS',I7,'  MACHINE ',A,':')
+C
+C     code portion # 2 for DOCU checking mode (messages) is inserted here
+C     DOCU CHECKING MESSAGES
+ 107  FORMAT(' TR=',F15.4)
+ 108  FORMAT(' KA=',F15.4)
+ 109  FORMAT(' TA=',F15.4)
+ 110  FORMAT(' VRMAX=',F15.4)
+ 111  FORMAT(' VRMIN=',F15.4)
+ 112  FORMAT(' KE=',F15.4)
+ 113  FORMAT(' TE=',F15.4)
+ 114  FORMAT(' KF=',F15.4)
+ 115  FORMAT(' TF=',F15.4)
+ 116  FORMAT(' RATIO TF/KF=',F15.4)
+C 
+ 307  FORMAT(' UEXC AT BUS',I7,' MACHINE ',A,
+     *       ' INITIALIZED OUT OF LIMITS')
+C     a code portion for DYDA record is inserted here
+ 507  FORMAT(I6,' ''USRMDL''',2X,A2,' ''UEXC''',1X,4G13.5,/7X,5G13.5,'/')
+$1
+      TO PRINT-HEADING
+C     .
+      .  UNLESS (NEW)
+      .  .  NEW=.TRUE.
+      .  .  CALL DOCUHD(*1900)
+      .  .  WRITE(IPRT,97) IBUS,IM
+      .  ...FIN
+C     .
+      ...FIN
+C
+      END
+ 
+(FLECS Version 22.60 - PTI)
+----------------------------------------

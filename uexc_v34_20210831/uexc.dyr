@@ -1,0 +1,2 @@
+@! UEXC.dyr - user defined exciter model
+101 'USRMDL' 1 'UEXC' 4  0  0  9  4  0   0.0 400.0   0.04   7.3   -7.3 1.0   0.8   0.03 1.0  /uexc
