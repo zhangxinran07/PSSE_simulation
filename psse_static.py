@@ -47,7 +47,7 @@ def run_psse_power_flow(study, case_path='./Cases/'):
     psspy.case(sav_file)
     psspy.solution_parameters_3([_i,100,_i],[_f,_f,_f,_f,_f,_f,_f,_f,_f,_f,_f,_f,_f,_f,_f,_f,_f,_f,_f]) 
     ierr=psspy.load_chng_6(ibus=20,id='1',realar=[580,_f,_f,_f,_f,_f,_f,_f])#改母线的负荷，前面两个参数分别是P和Q
-    ierr=psspy.fnsl()#求解潮流
+    ierr=psspy.fnsl()#求解潮流，牛顿拉夫逊法
     psspy.list(sid=0,all=1,opt=4,vrev=0)#opt 1:summary 2: bus 4:发电 18：负荷
     psspy.list(sid=0,all=1,opt=18,vrev=0)#opt 1:summary 2: bus 4:发电 18：负荷
     
