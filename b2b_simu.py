@@ -30,24 +30,28 @@ def deri_cal(df):
     Q_p=-(u.imag*i.real-u.real*i.imag)
     return u,e,tm,s,P,Q,mva_amp,i
 
-def b2b_cal(u,P,Q,mva_amp,para,dt=0.002):
-    r,x1,x0,t0,H2=para[0]/mva_amp,para[1]/mva_amp,para[2]/mva_amp,para[3],para[4]
+def obj_fun(df,para,dt=0.002):
+    mva_amp=df.values[0,30]/100#容量基值放大倍数
+    ang=(df.values[0,2]-df.values[:,2])/180*math.pi
+    u=(df.values[:,18]+1j*df.values[:,19])*np.exp(1j*ang)
+    P=df.values[:,22]  
+    Q=df.values[:,23]
+    r,x0,x1,t0,H2=para[0]/mva_amp,para[1]/mva_amp,para[2]/mva_amp,para[3],para[4]
     n=len(u)
     de_p=np.zeros(n,dtype=complex)
     ds=np.zeros(n)
     tele=np.zeros(n)
     i_p=np.zeros(n,dtype=complex)
     e_p=np.zeros(n,dtype=complex)
-    e_p[0]=u[0]+i[0]*(r+1j*x1)
+    e_p[0]=u[0]-((P[0]+1j*Q[0])/(u[0])).conj()*(r+1j*x1)
+    i_p[0]=(e_p[0]-u[0])/(r+1j*x1)
     s_p=np.zeros(n)
-    s_p[0]=abs(((x1-x0)*i[0]+1j*e[0])/120/math.pi/t0/e_p[0])
+    s_p[0]=abs(((x1-x0)*i_p[0]+1j*e_p[0])/120/math.pi/t0/e_p[0])
     P_p=np.zeros(n)
     Q_p=np.zeros(n)
     P_p[0]=P[0]
     Q_p[0]=Q[0]
-    i_p[0]=(e_p[0]-u[0])/(r+1j*x1)
     tm=-(e_p[0].real*i_p[0].real+e_p[0].imag*i_p[0].imag)/mva_amp
-    #tm=P[0]/mva_amp
     for k in range(n-1):
         i_p[k]=(e_p[k]-u[k])/(r+1j*x1)
         de_p[k]=((-1-1j*120*math.pi*s_p[k]*t0)*e_p[k]-1j*(x0-x1)*i_p[k])/t0
@@ -65,5 +69,5 @@ if __name__ == '__main__':
     df=pd.read_pickle('data_ma.pkl')  # 从文件中读取数据
     u,e,tm,s,P,Q,mva_amp,i=deri_cal(df)
     para=[0.02,0.22,2.8,0.08,0.1]
-    a=b2b_cal(u,P,Q,mva_amp,para)
+    a=obj_fun(df,para)
     a=1

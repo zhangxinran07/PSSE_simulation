@@ -51,7 +51,10 @@ def generate_ambient_signals(amplitude, frequency_sampling, length, size):
             break
     return y_final
 
-def run_psse_simulation(simulation_type, study, type_option=4, case_path='./Cases/', time_step=0.002, total_time=20):
+def run_psse_simulation(simulation_type, study, type_option=4, case_path='./Cases/', time_step=0.002, total_time=20,ld_con_chng_buses=[],ld_con_chng_indexes=[],ld_con_chng_values=[]):
+    #ld_con_chng_buses:要修改的负荷模型所在节点号列表
+    #ld_con_chng_indexes:要修改的负荷模型参数索引列表
+    #ld_con_chng_values:要修改的负荷模型参数值列表
     #type:'ambient', 'load_change', 'fault'，后面两个需要给节点号
     # 加载案例文件
     sav_file = case_path+'%s.sav'%study  # 替换为你的案例文件路径
@@ -61,6 +64,7 @@ def run_psse_simulation(simulation_type, study, type_option=4, case_path='./Case
     snp_file = case_path+'%s_%s.snp'%(study,study)
     log_file = case_path+'%s.log'%study  # 日志文件
     sys.stdout = open(log_file, 'w')  # 重定向输出到日志
+    
     busid=[3,15,24]
 
     psspy.psseinit(20000)
@@ -95,6 +99,11 @@ def run_psse_simulation(simulation_type, study, type_option=4, case_path='./Case
     #** Read in-lib DYRE records
         psspy.dyre_add([_i,_i,_i,_i],dyradd,'','')
 
+    # 修改负荷模型参数
+    for i in range(len(ld_con_chng_buses)):
+        for j in range(len(ld_con_chng_indexes[i])):
+            if ld_con_chng_values[i][j]!=-1:
+                ierr=psspy.change_ldmod_con(ld_con_chng_buses[i], '1', 'CMLDBLU2', ld_con_chng_indexes[i][j], ld_con_chng_values[i][j])
 
     # 加载动态模型文件  
         
@@ -187,7 +196,7 @@ def run_psse_simulation(simulation_type, study, type_option=4, case_path='./Case
     data_filt=np.zeros(np.shape(data_no_filt))
     data_filt[0:2,:]=data_no_filt[0:2,:]
 
-    nyq=1/time_step//2#奈奎斯特频率
+    nyq=1/time_step/2#奈奎斯特频率
     normal_cutoff=2/nyq#归一化截止频率
     b, a = butter(5, normal_cutoff, btype='low', analog=False)  # 5阶低通滤波器
     data_filt[2:n+1,:] = filtfilt(b, a, data_no_filt[2:n+1,:], axis=0)  # 对每一列进行滤波
