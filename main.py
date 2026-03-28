@@ -36,14 +36,16 @@ def plot_figures(df,k,title='Dynamic Simulation Results', xlabel='Time (s)'):
 if __name__ == '__main__':
 
     study='IEEE39_RE'
+    df=ps_d.run_psse_simulation(simulation_type='ambient', type_option=800,study=study,total_time=50)  # 运行 PSSE 动态仿真
+
     #df=ps_d.run_psse_simulation(simulation_type='ambient', type_option=800,study=study,total_time=30,ld_con_chng_buses=[3],ld_con_chng_indexes=[[40,41,42,44,46]],ld_con_chng_values=[[0.02,1.8,0.22,0.08,0.1]])  # 运行 PSSE 动态仿真
 
     #df=ps_d.run_psse_simulation(simulation_type='load_change', type_option=[12,500],study=study,total_time=30)  # 运行 PSSE 动态仿真
-    #df.to_pickle('data_ma.pkl')
+    df.to_pickle('data_ma.pkl')
 
     #a=b2b.obj_fun(df,para=[0.02,1.8,0.22,0.08,0.1])
 
-    ps_s.run_psse_power_flow(study=study)  # 运行 PSSE 静态潮流计算
+    #ps_s.run_psse_power_flow(study=study)  # 运行 PSSE 静态潮流计算
     a=1
 
     #df=pd.read_pickle('data.pkl')  # 从文件中读取数据

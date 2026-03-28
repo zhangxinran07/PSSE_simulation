@@ -1,0 +1,61 @@
+ 0,   35    /  PSS(R)E-35.5, MON, DEC 29 2025  15:17
+ 0 / End of System-Wide data, begin Bus Voltage Constraint data
+       1     1.0500     0.9500     2.0000     0.2000 1       1.0000    0
+       2     1.0500     0.9500     2.0000     0.2000 1       1.0000    0
+       3     1.0500     0.9500     2.0000     0.2000 1       1.0000    0
+       4     1.0500     0.9500     2.0000     0.2000 1       1.0000    0
+       5     1.0500     0.9500     2.0000     0.2000 1       1.0000    0
+       6     1.0500     0.9500     2.0000     0.2000 1       1.0000    0
+       7     1.0500     0.9500     2.0000     0.2000 1       1.0000    0
+       8     1.0500     0.9500     2.0000     0.2000 1       1.0000    0
+       9     1.0500     0.9500     2.0000     0.2000 1       1.0000    0
+      10     1.0500     0.9500     2.0000     0.2000 1       1.0000    0
+      11     1.0500     0.9500     2.0000     0.2000 1       1.0000    0
+      12     1.0500     0.9500     2.0000     0.2000 1       1.0000    0
+      13     1.0500     0.9500     2.0000     0.2000 1       1.0000    0
+      14     1.0500     0.9500     2.0000     0.2000 1       1.0000    0
+      15     1.0500     0.9500     2.0000     0.2000 1       1.0000    0
+      16     1.0500     0.9500     2.0000     0.2000 1       1.0000    0
+      17     1.0500     0.9500     2.0000     0.2000 1       1.0000    0
+      18     1.0500     0.9500     2.0000     0.2000 1       1.0000    0
+      19     1.0500     0.9500     2.0000     0.2000 1       1.0000    0
+      20     1.0500     0.9500     2.0000     0.2000 1       1.0000    0
+      21     1.0500     0.9500     2.0000     0.2000 1       1.0000    0
+      22     1.0500     0.9500     2.0000     0.2000 1       1.0000    0
+      23     1.0500     0.9500     2.0000     0.2000 1       1.0000    0
+      24     1.0500     0.9500     2.0000     0.2000 1       1.0000    0
+      25     1.0500     0.9500     2.0000     0.2000 1       1.0000    0
+      26     1.0500     0.9500     2.0000     0.2000 1       1.0000    0
+      27     1.0500     0.9500     2.0000     0.2000 1       1.0000    0
+      28     1.0500     0.9500     2.0000     0.2000 1       1.0000    0
+      29     1.0500     0.9500     2.0000     0.2000 1       1.0000    0
+      30     1.0500     0.9500     2.0000     0.2000 1       1.0000    0
+      31     1.0500     0.9500     2.0000     0.2000 1       1.0000    0
+      32     1.0500     0.9500     2.0000     0.2000 1       1.0000    0
+      33     1.0500     0.9500     2.0000     0.2000 1       1.0000    0
+      34     1.0500     0.9500     2.0000     0.2000 1       1.0000    0
+      35     1.0500     0.9500     2.0000     0.2000 1       1.0000    0
+      36     1.0500     0.9500     2.0000     0.2000 1       1.0000    0
+      37     1.0500     0.9500     2.0000     0.2000 1       1.0000    0
+      38     1.0500     0.9500     2.0000     0.2000 1       1.0000    0
+      39     1.0500     0.9500     2.0000     0.2000 1       1.0000    0
+      40     1.0500     0.9500     2.0000     0.2000 1       1.0000    0
+      41     1.0500     0.9500     2.0000     0.2000 1       1.0000    0
+      42     1.0500     0.9500     2.0000     0.2000 1       1.0000    0
+ 0 / End of Bus Voltage Constraint data, begin Adjustable Bus Shunt data
+ 0 / End of Adjustable Bus Shunt data, begin Bus Load data
+ 0 / End of Bus Load data, begin Adjustable Bus Load Tables
+ 0 / End of Adjustable Bus Load Tables, begin Generator Dispatch data
+ 0 / End of Generator Dispatch data, begin Active Power Dispatch Tables
+ 0 / End of Active Power Dispatch Tables, begin Generation Reserve data
+ 0 / End of Generation Reserve data, begin Generation Reactive Capability data
+ 0 / End of Generation Reactive Capability data, begin Adjustable Branch Reactance data
+ 0 / End of Adjustable Branch Reactance data, begin Piece-wise Linear Cost Tables
+ 0 / End of Piece-wise Linear Cost Tables, begin Piece-wise Quadratic Cost Tables
+ 0 / End of Piece-wise Quadratic Cost Tables, begin Polynomial Cost Tables
+ 0 / End of Polynomial Cost Tables, begin Period Reserve data
+ 0 / End of Period Reserve data, begin Branch Flow Constraint data
+ 0 / End of Branch Flow Constraint data, begin Interface Flow data
+ 0 / End of Interface Flow data, begin Linear Constraint Equation Dependency data
+ 0 / End of Linear Constraint Equation Dependency data, begin 2-terminal dc Line Constraint data
+ 0 / End of 2-terminal dc Line Constraint data

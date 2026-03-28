@@ -65,7 +65,7 @@ def run_psse_simulation(simulation_type, study, type_option=4, case_path='./Case
     log_file = case_path+'%s.log'%study  # 日志文件
     sys.stdout = open(log_file, 'w')  # 重定向输出到日志
     
-    busid=[3,15,24]
+    busid=[3,4,15,20,21,24,25,27,28]
 
     psspy.psseinit(20000)
     psspy.case(sav_file)
@@ -124,16 +124,24 @@ def run_psse_simulation(simulation_type, study, type_option=4, case_path='./Case
         start_state.append(psspy.lmodind(bus, '1','CHARAC','STATE')[1])
     #idx=[15,16]+list(range(25,29))+list(range(31,39))
     #ident=['UD','UQ','S P','S Q','E P','E Q','MA P','MA Q','MB P','MB Q','MC P','MC Q','MD P','MD Q']
-    idx_var=[0,15,16,29,30,31,32,71,72,73,74,75,76,79,80]
-    ident_var=['load MVA','UD','UQ','load bus v','low side bus v','MA P','MA Q','Tele','Speed Deviation','init load torque','Id','Iq','MA I','MA MVA','TL']
-    idx_state=list(range(0,6))
-    ident_state=['Eq1','Ed1','Eq2','Ed2','speed deviation','angle deviation']
-    #for i in range(len(busid)):
-    for i in [0]:
-        for j in range(len(idx_var)):
-            ierr=psspy.var_channel(status=[-1,start_var[i]+idx_var[j]],ident='Bus%d %s'%(busid[i],ident_var[j]))
-        for j in range(len(idx_state)):
-            ierr=psspy.state_channel(status=[-1,start_state[i]+idx_state[j]],ident='Bus%d %s'%(busid[i],ident_state[j]))
+    if dyradd:
+        ori_idx_var=[0,15,16,29,30,31,32,33,34,35,36,37,38,71,72,73,74,75,76,79,80,87,88,89,90,91,92,95,96,103,104,105,106,107,108,111,112]
+        ori_ident_var=['load MVA','UD','UQ','load bus v','low side bus v','MA P','MA Q','MB P','MB Q','MC P','MC Q','MD P','MD Q','MA Tele','MA Speed Deviation','MA init load torque','MA Id','MA Iq','MA I','MA MVA','MA TL','MB Tele','MB Speed Deviation','MB init load torque','MB Id','MB Iq','MB I','MB MVA','MB TL','MC Tele','MC Speed Deviation','MC init load torque','MC Id','MC Iq','MC I','MC MVA','MC TL']
+        var_indices=(1,2,5,6)
+        #var_indices=range(len(ori_idx_var))
+        idx_var=[ori_idx_var[index] for index in var_indices]
+        ident_var=[ori_ident_var[index] for index in var_indices]
+        ori_idx_state=[0,1,4,5,6,7,10,11,12,13,16,17]
+        ori_ident_state=['MA Eq1','MA Ed1','MA speed deviation','MA angle deviation','MB Eq1','MB Ed1','MB speed deviation','MB angle deviation','MC Eq1','MC Ed1','MC speed deviation','MC angle deviation']
+        state_indices=(0,1,2)
+        idx_state=[ori_idx_state[index] for index in state_indices]
+        ident_state=[ori_ident_state[index] for index in state_indices]
+        for i in range(len(busid)):
+        #for i in [0]:
+            for j in range(len(idx_var)):
+                ierr=psspy.var_channel(status=[-1,start_var[i]+idx_var[j]],ident='Bus%d %s'%(busid[i],ident_var[j]))
+            for j in range(len(idx_state)):
+                ierr=psspy.state_channel(status=[-1,start_state[i]+idx_state[j]],ident='Bus%d %s'%(busid[i],ident_state[j]))
 
     outfile = case_path+'%s.out'%study  # 输出文件名
 
