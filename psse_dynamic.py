@@ -106,7 +106,18 @@ def run_psse_simulation(simulation_type, study, type_option=4, case_path='./Case
                 ierr=psspy.change_ldmod_con(ld_con_chng_buses[i], '1', 'CMLDBLU2', ld_con_chng_indexes[i][j], ld_con_chng_values[i][j])
 
     # 加载动态模型文件  
-        
+
+    para_name=['pa','pb','ra','xa','x1a','tda','ha','rb','xb','x1b','tdb','hb']
+    para_index=[18,19,39,40,41,43,45,59,60,61,63,65]
+    bus_para=[]
+    for bus in busid:
+        ival=psspy.lmodind(bus,'1','CHARAC','CON')[1]
+        para_value=[]
+        for i in range(len(para_index)):
+            para_value.append(psspy.dsrval('CON',ival+para_index[i])[1])    
+        bus_para.append(para_value)
+    d_para=pd.DataFrame(data=bus_para,columns=para_name,index=busid)
+    #生成负荷模型参数库    
     # 设置仿真参数
     
     ierr=psspy.dynamics_solution_param_2([99,_i,_i,_i,_i,_i,_i,_i],
@@ -126,14 +137,17 @@ def run_psse_simulation(simulation_type, study, type_option=4, case_path='./Case
     #ident=['UD','UQ','S P','S Q','E P','E Q','MA P','MA Q','MB P','MB Q','MC P','MC Q','MD P','MD Q']
     if dyradd:
         ori_idx_var=[0,15,16,29,30,31,32,33,34,35,36,37,38,71,72,73,74,75,76,79,80,87,88,89,90,91,92,95,96,103,104,105,106,107,108,111,112]
-        ori_ident_var=['load MVA','UD','UQ','load bus v','low side bus v','MA P','MA Q','MB P','MB Q','MC P','MC Q','MD P','MD Q','MA Tele','MA Speed Deviation','MA init load torque','MA Id','MA Iq','MA I','MA MVA','MA TL','MB Tele','MB Speed Deviation','MB init load torque','MB Id','MB Iq','MB I','MB MVA','MB TL','MC Tele','MC Speed Deviation','MC init load torque','MC Id','MC Iq','MC I','MC MVA','MC TL']
-        var_indices=(1,2,5,6)
+        ori_ident_var=['load MVA','UD','UQ','load bus v','low side bus v','MA P','MA Q','MB P','MB Q','MC P','MC Q',
+                       'MD P','MD Q','MA Tele','MA Speed Deviation','MA init load torque','MA Id','MA Iq','MA I','MA MVA','MA TL',
+                       'MB Tele','MB Speed Deviation','MB init load torque','MB Id','MB Iq','MB I','MB MVA','MB TL','MC Tele','MC Speed Deviation',
+                       'MC init load torque','MC Id','MC Iq','MC I','MC MVA','MC TL']
+        var_indices=(0,1,2,5,6,7,8,15,16,17,19,23,24,25,27)
         #var_indices=range(len(ori_idx_var))
         idx_var=[ori_idx_var[index] for index in var_indices]
         ident_var=[ori_ident_var[index] for index in var_indices]
         ori_idx_state=[0,1,4,5,6,7,10,11,12,13,16,17]
         ori_ident_state=['MA Eq1','MA Ed1','MA speed deviation','MA angle deviation','MB Eq1','MB Ed1','MB speed deviation','MB angle deviation','MC Eq1','MC Ed1','MC speed deviation','MC angle deviation']
-        state_indices=(0,1,2)
+        state_indices=(0,1,2,4,5,6)
         idx_state=[ori_idx_state[index] for index in state_indices]
         ident_state=[ori_ident_state[index] for index in state_indices]
         for i in range(len(busid)):
@@ -214,4 +228,4 @@ def run_psse_simulation(simulation_type, study, type_option=4, case_path='./Case
 
     print(chanid)
 
-    return df
+    return df,d_para
