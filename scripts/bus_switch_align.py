@@ -146,7 +146,7 @@ def urange(g):
 def identify_groups(groups, K, seed_base):
     recs = []
     for g in groups:
-        th = identify_mix(g['u'], g['P'], g['Q'], 0.01, lam_H=LAM_H, K=K, seed=seed_base + g['idx'])
+        th = identify_mix(g['u'], g['P'], g['Q'], 0.01, lam_H=LAM_H, K=K, seed=seed_base + (g['idx'] % 100000))
         recs.append((np.asarray(th.x, float), np.asarray(g['truth'], float)))
     return recs
 
