@@ -1,0 +1,3 @@
+# redirect 类型桩(PSSE 只提供 redirect.pyc, Pylance 无法解析字节码)
+from typing import Any
+def __getattr__(name: str) -> Any: ...

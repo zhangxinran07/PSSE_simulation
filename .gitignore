@@ -1,0 +1,61 @@
+# Python
+__pycache__/
+*.pyc
+
+# PSS/E simulation outputs / data (not versioned)
+*.pkl
+# .sav 是潮流案例文件(输入数据)，需要入库 —— 但 *_cnv.sav 是每次仿真重新生成的转换案例
+*_cnv.sav
+*_cnv*.sav
+*.out
+*.log
+*.snp
+*.rop
+*.raw
+*.zip
+*.xlsx
+*.flx
+*.idv
+*.dll
+
+# Large data directories
+AI_data_center/
+Sample_Generation/Cases/
+Cases/PSSE_Systems/
+Cases/CMLDxxU2_jconto_20210911/
+
+# PSSE dyre 编译产物(工作目录生成，任意层级)
+conec.for
+conet.for
+
+# WorkBuddy 实验备份 / 临时产物
+*.dyr.bak_*
+_compare_ra_*
+
+# sweep 结果数据
+sweep_output/
+datalen_output/
+
+# 同步冲突副本（MemoSpace/OneDrive 产生的 (1)/-(1)/orig 副本，与当前代码无关，勿入库）
+*(1)
+*(1).*
+*-(1)
+*-(1).*
+*.orig.py
+*_orig.py
+
+# 仿真工作副本目录（并行仿真时创建的 case 副本，运行时临时）
+Cases/w*/
+Cases/wd*/
+
+# 其它无关目录
+plugin/
+Cases/HAWG/
+
+# IDE / 编辑器
+.idea/
+.vscode/
+.claude/
+
+# 本机自动化任务记录（个人定时任务配置，非项目知识，勿共享）
+.workbuddy/memory/automations/
