@@ -12,8 +12,10 @@
 idx = busid*100000 + start + k（start = shard*per）→ align 用 idx%100000 逐组配对。
 
 用法：
-  python scripts/bus_align_shard.py gen <busid> <n_total> <mw> <shard> <n_shards>
-  python scripts/bus_align_shard.py merge <busid> <n_shards>
+  python scripts/bus_align_shard.py gen <busid> <n_total> <mw> <shard> <n_shards> [tag]
+  python scripts/bus_align_shard.py merge <busid> <n_shards> [tag]
+  tag 默认 'bus%d_align'（输出 bus%d_align_s%d_ori.pkl / bus%d_align_ori.pkl）;
+  传自定义 tag（如 'bus4_palign'）可生成独立命名的数据，避免覆盖既有对齐数据。
 """
 import os
 import sys
@@ -72,7 +74,7 @@ def extract_bus(df, busid):
     return ud + 1j * uq, P, Q
 
 
-def gen(busid, n_total, mw, shard, n_shards):
+def gen(busid, n_total, mw, shard, n_shards, tag=None):
     per = n_total // n_shards
     start = shard * per
     sid = busid * 100 + shard                       # 独立 case 目录，并行不冲突
@@ -80,7 +82,10 @@ def gen(busid, n_total, mw, shard, n_shards):
     kw = build_kwargs(case_path, dyr_abs, busid)
     kw['disturbance_type'] = 'ambient_a'
     kw['disturbance_range'] = mw
-    tag = 'bus%d_align_s%d' % (busid, shard)
+    if tag is None:
+        tag = 'bus%d_align_s%d' % (busid, shard)
+    else:
+        tag = '%s_s%d' % (tag, shard)
     out = os.path.join(RES, '%s_ori.pkl' % tag)
     groups = []
     if os.path.exists(out):
@@ -105,17 +110,19 @@ def gen(busid, n_total, mw, shard, n_shards):
     print('[bus%d s%d] DONE %d 组' % (busid, shard, len(groups)), flush=True)
 
 
-def merge(busid, n_shards):
+def merge(busid, n_shards, tag=None):
+    if tag is None:
+        tag = 'bus%d_align' % busid
     allg = []
     for s in range(n_shards):
-        tag = 'bus%d_align_s%d' % (busid, s)
-        p = os.path.join(RES, '%s_ori.pkl' % tag)
+        st = '%s_s%d' % (tag, s)
+        p = os.path.join(RES, '%s_ori.pkl' % st)
         if not os.path.exists(p):
             print('[merge] 缺 %s' % p, flush=True)
             continue
         allg += pickle.load(open(p, 'rb'))['groups']
     allg.sort(key=lambda g: g['idx'])
-    out = os.path.join(RES, 'bus%d_align_ori.pkl' % busid)
+    out = os.path.join(RES, '%s_ori.pkl' % tag)
     pickle.dump({'busid': busid, 'groups': allg}, open(out, 'wb'))
     print('[merge] bus%d 共 %d 组 -> %s' % (busid, len(allg), out), flush=True)
 
@@ -128,8 +135,10 @@ if __name__ == '__main__':
         mw = float(sys.argv[4])
         shard = int(sys.argv[5])
         n_shards = int(sys.argv[6])
-        gen(busid, n_total, mw, shard, n_shards)
+        tag = sys.argv[7] if len(sys.argv) > 7 else None
+        gen(busid, n_total, mw, shard, n_shards, tag)
     elif cmd == 'merge':
         busid = int(sys.argv[2])
         n_shards = int(sys.argv[3])
-        merge(busid, n_shards)
+        tag = sys.argv[4] if len(sys.argv) > 4 else None
+        merge(busid, n_shards, tag)
